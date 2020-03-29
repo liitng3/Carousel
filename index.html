@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div class="box" id="box">
+			
+        </div>
+        <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+		<script type="text/javascript">
+			(function(){
+				window.Carousel = Carousel;
+				function Carousel(JSON){
+					this.$dom = $("#" + JSON.id);
+					this.interval = JSON.interval;
+					this.speed = JSON.speed; 
+					this.imagesURLArr = JSON.images;
+					this.pictureLength = JSON.images.length;
+					this.idx = 0;
+					this.$slider=null;
+					this.$slide=null;
+					this.$List = null;
+					this.$leftBtn = null;
+					this.$rightBtn = null;
+					this.$Ul = null;
+					this.$circleList = null;
+					this.init();
+					this.bindEvent();
+					this.autoPlay(); 
+					this.changeCircles();
+				}
+				Carousel.prototype.init = function(){
+					this.$slider=$("<div class='slider'></div>");
+					this.$dom.append(this.$slider);
+
+					for(var i = 0; i < this.pictureLength; i++) {
+						this.slide=$("<div class='slide'><img src='"+this.imagesURLArr[i].picUrl+"'/></div>")
+						this.slide.appendTo(this.$slider);
+					};
+					
+					this.$leftBtn = $("<span id='left'><</span>");
+					this.$rightBtn = $("<span id='right'>></span>");
+					this.$leftBtn.appendTo(this.$dom);
+					this.$rightBtn.appendTo(this.$dom);
+				
+					this.$Ul = $("<ul class='nav' id='navs'></ul>");
+					this.$Ul.appendTo(this.$dom);
+
+					for (var i = 0; i < this.pictureLength-2; i++) {
+						var num=i+1;
+						$("<li>"+num+"</li>").appendTo(this.$Ul);
+					};
+					this.$circleList = this.$Ul.find("li");
+				}
+				Carousel.prototype.bindEvent = function(){
+					var that = this;
+					this.$rightBtn.click(function(){
+						if(that.$slider.is(":animated")) {
+							return;
+						};
+						that.showNext();
+					});
+					this.$rightBtn.mouseenter(function(){
+						that.$rightBtn.css("opacity","0.6")
+					});
+					this.$rightBtn.mouseleave(function(){
+						that.$rightBtn.css("opacity","0")
+					});
+
+
+					this.$leftBtn.click(function(){
+						if(that.$slider.is(":animated")) {
+							return;
+						}
+						that.showPrev();
+					});
+					this.$leftBtn.mouseenter(function(){
+						that.$leftBtn.css("opacity","0.6")
+					});
+					this.$leftBtn.mouseleave(function(){
+						that.$leftBtn.css("opacity","0")
+					});
+
+
+					this.$circleList.click(function(){
+						that.show($(this).index());
+					});
+				
+
+					this.$slider.mouseenter(function(){
+						clearInterval(that.timer);
+					});
+					this.$slider.mouseleave(function(){
+						that.autoPlay();
+					});
+				}
+				Carousel.prototype.showNext = function(){
+					clearInterval(this.timer);
+					this.idx++;
+					if(this.idx<5){
+						this.$slider.animate({left : "-=1200"},this.speed);
+					}
+					else{
+						this.idx=0;
+						this.$slider.css("left","0px").animate({"left" : '-=1200px'},this.speed);
+					}
+					this.changeCircles();
+					this.autoPlay();
+				}
+				Carousel.prototype.showPrev = function(){
+					clearInterval(this.timer);
+					this.idx--;
+					if(this.idx<0){
+						this.idx=4;
+						this.$slider.css("left","-7200px").animate({"left" : '+=1200px'},this.speed);
+					}
+					else{
+						this.$slider.animate({left : "+=1200"},this.speed);
+					}
+					this.changeCircles();
+					this.autoPlay();
+				}
+				Carousel.prototype.changeCircles = function(){
+					this.$circleList.eq(this.idx).addClass("active").siblings().removeClass("active");
+				}
+				Carousel.prototype.autoPlay = function(){
+					var that = this;
+					this.timer = setInterval(function(){
+						that.showNext();
+					},this.interval);
+				}
+				Carousel.prototype.show = function(index){
+					clearInterval(this.timer);
+					var old = this.idx; 
+					this.idx = index;    
+					if(this.idx > old){ 
+						var cha=(this.idx-old)*1200
+						this.$slider.animate({"left" : '-='+cha+'px'},this.speed);
+					}else if(this.idx < old){
+						var cha=(old-this.idx)*1200
+						this.$slider.animate({"left" : '+='+cha+'px'},this.speed);
+						
+					}
+					this.changeCircles();
+					this.autoPlay();
+				}
+			})();
+
+        
+            new Carousel({
+				"id" : "box",
+				"images" : [
+					{"picUrl" : "img/b5.png"},
+					{"picUrl" : "img/b1.png"},
+					{"picUrl" : "img/b2.png"},
+					{"picUrl" : "img/b3.png"},
+					{"picUrl" : "img/b4.png"},
+					{"picUrl" : "img/b5.png"},
+					{"picUrl" : "img/b1.png"}
+				],
+				"speed" : 1000,
+				"interval" : 3500
+			});
+
+        </script>
+	</body>
+</html>
